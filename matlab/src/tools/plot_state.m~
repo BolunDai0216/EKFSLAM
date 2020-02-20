@@ -10,9 +10,9 @@ function plot_state(mu, sigma, landmarks, timestep, observedLandmarks, z, window
     close all;
     
     if window
-        f = figure('visible', 'on');
+        figure('visible', 'on')
     else
-        f = figure('visible', 'off');
+        figure('visible', 'off')
     end
     
     hold on
@@ -40,20 +40,15 @@ function plot_state(mu, sigma, landmarks, timestep, observedLandmarks, z, window
     hold off
     
     if window
-        drawnow;
-        pause(0.1)
-    else
-        filename = sprintf('../plots/ekf_%03d.png', timestep);
-        saveas(f, filename)
-    end
+        
 
-%     if window
-%       figure('visible', 'on');
-%       drawnow;
-%       pause(0.1);
-%     else
-%       figure('visible', 'off');
-%       filename = sprintf('../plots/ekf_%03d.png', timestep);
-%       print(filename, '-dpng');
-%     end
+    if window
+      figure('visible', 'on');
+      drawnow;
+      pause(0.1);
+    else
+      figure('visible', 'off');
+      filename = sprintf('../plots/ekf_%03d.png', timestep);
+      print(filename, '-dpng');
+    end
 end

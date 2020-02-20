@@ -31,8 +31,8 @@ function [mu, sigma, observedLandmarks] = correction_step(mu, sigma, z, observed
         % If the landmark is obeserved for the first time:
         if(observedLandmarks(landmarkId)==false)
             % TODO: Initialize its pose in mu based on the measurement and the current robot pose:
-                mu(2*landmarkId+1) = mu(1) + z(i).range * cos(mu(3) + z(i).bearing);
-                mu(2*landmarkId+2) = mu(2) + z(i).range * sin(mu(3) + z(i).bearing);
+                mu(2*landmarkId+2) = mu(1) + z(i).range * cos(mu(3) + z(i).bearing);
+                mu(2*landmarkId+3) = mu(2) + z(i).range * sin(mu(3) + z(i).bearing);
             % Indicate in the observedLandmarks vector that this landmark has been observed
             observedLandmarks(landmarkId) = true;
         end
@@ -43,15 +43,14 @@ function [mu, sigma, observedLandmarks] = correction_step(mu, sigma, z, observed
         
         % TODO: Use the current estimate of the landmark pose
         % to compute the corresponding expected measurement in expectedZ:
-        expectedZ(2*i-1) = mu(2*landmarkId+1) - mu(1);
-        expectedZ(2*i) = mu(2*landmarkId+2) - mu(2);
-        
+        d = [mu(2*landmarkId+2) - mu(1); mu(2*landmarkId+3) - mu(2)];
+        q = d' * d;
+        expectedZ(2*i-1) = sqrt(q);
+        expectedZ(2*i) = atan2(d(2), d(1)) - mu(3);
         
         % TODO: Compute the Jacobian Hi of the measurement function h for this observation
-        q  = [expectedZ(2*i-1); expectedZ(2*i)]'*[expectedZ(2*i-1); expectedZ(2*i)];
-        h = [sqrt(q); atan2(expectedZ(2*i), expectedZ(2*i-1) - mu(3))];
-        Hi = (1/q) * [-h(1)*expectedZ(2*i-1), -h(1)*expectedZ(2*i), 0, h(1)*expectedZ(2*i-1), h(1)*expectedZ(2*i);
-                      expectedZ(2*i), -expectedZ(2*i-1), -q, -expectedZ(2*i), expectedZ(2*i-1)];
+        Hi = (1/q) * [-sqrt(q)*d(1), -sqrt(q)*d(2), 0,  sqrt(q)*d(1), sqrt(q)*d(2);
+                      d(2),          -d(1),         -q, -d(2),        d(1)];
         % Augment H with the new Hi
         N = (size(mu, 1) - 3)/2;
         F = [[eye(3); zeros(2, 3)], zeros(5, 2*landmarkId - 2), [zeros(3, 2); eye(2)], zeros(5, 2*(N - landmarkId))];
@@ -60,7 +59,7 @@ function [mu, sigma, observedLandmarks] = correction_step(mu, sigma, z, observed
     end
 
     % TODO: Construct the sensor noise matrix Q
-    Q = diag(ones(1, 2*m));
+    Q = diag(ones(1, 2*m)) * 0.01;
     % TODO: Compute the Kalman gain
     K = sigma * H' * inv(H * sigma * H' + Q);
     % TODO: Compute the difference between the expected and recorded measurements.
