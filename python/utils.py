@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from pdb import set_trace
 
 
@@ -55,6 +56,14 @@ def read_data(filename="data/sensor_data.dat"):
         else:
             timesteps[-1].get_sensor_data(txt)
     return timesteps
+
+
+def normalize_angle(phi):
+    while(phi > math.pi):
+        phi -= math.pi
+    while(phi < -math.pi):
+        phi += math.pi
+    return phi
 
 
 def main():
