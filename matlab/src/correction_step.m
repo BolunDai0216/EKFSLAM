@@ -1,4 +1,4 @@
-function [mu, sigma, observedLandmarks] = correction_step(mu, sigma, z, observedLandmarks)
+ function [mu, sigma, observedLandmarks] = correction_step(mu, sigma, z, observedLandmarks)
     % Updates the belief, i. e., mu and sigma after observing landmarks, according to the sensor model
     % The employed sensor model measures the range and bearing of a landmark
     % mu: 2N+3 x 1 vector representing the state mean.
